@@ -4,17 +4,27 @@
 #include "shellmemory.h"
 #include "shell.h"
 
-int MAX_ARGS_SIZE = 3;
+int MAX_ARGS_SIZE = 7;
 
 int badcommand() {
     printf("Unknown Command\n");
     return 1;
 }
 
+int badcommandMissingArguments() {
+    printf("Bad command: Missing arguments\n");
+    return 2;
+}
+
+int badcommandTooManyTokens() {
+    printf("Bad command: Too many tokens\n");
+    return 3;
+}
+
 // For run command only
 int badcommandFileDoesNotExist() {
     printf("Bad command: File not found\n");
-    return 3;
+    return 4;
 }
 
 int help();
@@ -28,8 +38,13 @@ int badcommandFileDoesNotExist();
 int interpreter(char* command_args[], int args_size) {
     int i;
 
-    if (args_size < 1 || args_size > MAX_ARGS_SIZE) {
+    // Preliminary check num of tokens... need further validation logic in each command
+    if (args_size < 1) {
         return badcommand();
+    }
+
+    if (args_size > MAX_ARGS_SIZE) {
+        return badcommandTooManyTokens();
     }
 
     // Terminate args at newline chars
@@ -48,9 +63,23 @@ int interpreter(char* command_args[], int args_size) {
         return quit();
 
     } else if (strcmp(command_args[0], "set") == 0) {
-        //set
-        if (args_size != 3) return badcommand();
-        return set(command_args[1], command_args[2]);
+        // SET COMMAND
+        if (args_size < 3) {
+            return badcommandMissingArguments();
+        }
+
+        char *variable_name = command_args[1];
+        char value_tokens[MAX_USER_INPUT];
+
+        for (int i = 2; i < args_size; i++) {
+            strcat(value_tokens, command_args[i]);
+
+            if (i < args_size - 1) {
+                strcat(value_tokens, " ");
+            }
+        }
+
+        return set(variable_name, value_tokens);
 
     } else if (strcmp(command_args[0], "print") == 0) {
         if (args_size != 2) return badcommand();
