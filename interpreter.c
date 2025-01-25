@@ -32,20 +32,11 @@ int quit();
 int set(char *var, char *value);
 int print(char *var);
 int run(char *script);
-int badcommandFileDoesNotExist();
+int echo(char *var);
 
 // Interpret commands and their arguments
 int interpreter(char* command_args[], int args_size) {
     int i;
-
-    // Preliminary check num of tokens... need further validation logic in each command
-    if (args_size < 1) {
-        return badcommand();
-    }
-
-    if (args_size > MAX_ARGS_SIZE) {
-        return badcommandTooManyTokens();
-    }
 
     // Terminate args at newline chars
     for (i = 0; i < args_size; i++) {
@@ -66,6 +57,10 @@ int interpreter(char* command_args[], int args_size) {
         // SET COMMAND
         if (args_size < 3) {
             return badcommandMissingArguments();
+        }
+
+        if (args_size > MAX_ARGS_SIZE) {
+            return badcommandTooManyTokens();
         }
 
         char *variable_name = command_args[1];
@@ -89,7 +84,20 @@ int interpreter(char* command_args[], int args_size) {
         if (args_size != 2) return badcommand();
         return run(command_args[1]);
 
-    } else return badcommand();
+    } else if (strcmp(command_args[0], "echo") == 0) {
+        // ECHO COMMAND
+        if (args_size < 2) {
+            return badcommandMissingArguments();
+        }
+
+        if (args_size > 2) {
+            return badcommandTooManyTokens();
+        }
+
+        return echo(command_args[1]);
+    } else {
+        return badcommand();
+    }
 }
 
 int help() {
@@ -155,4 +163,17 @@ int run(char *script) {
     fclose(p);
 
     return errCode;
+}
+
+int echo(char *var) {
+    if (var[0] == '$') {
+        // Get rid of dollar sign
+        var++;
+        // Fetch variable value from memory
+        print(var);
+    } else{
+        printf("%s\n", var);
+    }
+
+    return 0;
 }
