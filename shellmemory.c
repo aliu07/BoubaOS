@@ -1,4 +1,6 @@
 #include <string.h>
+#include <stdlib.h>
+#include<stdio.h>
 #include "shellmemory.h"
 
 struct memory_struct {
@@ -30,8 +32,8 @@ int match(char *model, char *var) {
 void mem_init() {
     int i;
     for (i = 0; i < MEM_SIZE; i++){
-        shellmemory[i].var   = "none";
-        shellmemory[i].value = "none";
+        shellmemory[i].var = NULL;
+        shellmemory[i].value = NULL;
     }
 }
 
@@ -40,7 +42,8 @@ void mem_set_value(char *var_in, char *value_in) {
     int i;
 
     for (i = 0; i < MEM_SIZE; i++) {
-        if (strcmp(shellmemory[i].var, var_in) == 0){
+        if (shellmemory[i].var != NULL && strcmp(shellmemory[i].var, var_in) == 0) {
+            free(shellmemory[i].value);
             shellmemory[i].value = strdup(value_in);
             return;
         }
@@ -48,7 +51,7 @@ void mem_set_value(char *var_in, char *value_in) {
 
     // Value does not exist, need to find a free spot.
     for (i = 0; i < MEM_SIZE; i++) {
-        if (strcmp(shellmemory[i].var, "none") == 0){
+        if (shellmemory[i].var == NULL) {
             shellmemory[i].var = strdup(var_in);
             shellmemory[i].value = strdup(value_in);
             return;

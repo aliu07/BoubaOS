@@ -101,12 +101,10 @@ int parseInput(char inp[]) {
             ix++;
         }
 
-        if (wordCount > 0) {
-            errorCode = interpreter(words, wordCount);
+        errorCode = interpreter(words, wordCount);
 
-            for (int j = 0; j < wordCount; j++) {
-                free(words[j]);
-            }
+        for (int j = 0; j < wordCount; j++) {
+            free(words[j]);
         }
 
         free(commands[i]);
