@@ -61,6 +61,7 @@ int my_ls();
 int my_mkdir(char *dirname);
 int my_touch(char *filename);
 int my_cd(char *dirname);
+int my_fork(char **args, int args_size);
 
 // HELPER FUNCTIONS
 int is_string_alphanumeric(char *string);
@@ -173,6 +174,19 @@ int interpreter(char* command_args[], int args_size) {
         }
 
         return my_cd(command_args[1]);
+
+    }  else if (strcmp(command_args[0], "my_fork") == 0) {
+
+        if (args_size < 2) {
+            return badcommandMissingArguments();
+        }
+
+        if (args_size > MAX_ARGS_SIZE) {
+            return badcommandTooManyTokens();
+        }
+
+        // Skip "exec" and pass in remaining arguments only
+        return my_fork(command_args + 1, args_size - 1);
 
     } else {
         return badcommand();
@@ -322,6 +336,39 @@ int my_cd(char *dirname) {
     }
 
     return 0;
+}
+
+int my_fork(char **args, int args_size) {
+    // Returns 0 in child, positive value in parent
+    pid_t pid = fork();
+
+    // Fork failed
+    if (pid == -1) {
+        return badCommandErrorOccurred();
+    }
+
+    if (pid == 0) {
+        // Child
+        char *fork_args[args_size + 1];
+
+        for (int i = 0; i < args_size; i++) {
+            fork_args[i] = args[i];
+        }
+
+        // NULL terminate array of arguments for execvp
+        fork_args[args_size] = NULL;
+
+        execvp(fork_args[0], fork_args);
+
+        exit(1);
+    } else {
+        // Parent
+        int status;
+        // Wait for child to complete
+        waitpid(pid, &status, 0);
+
+        return WEXITSTATUS(status);
+    }
 }
 
 
