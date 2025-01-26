@@ -99,7 +99,7 @@ int interpreter(char* command_args[], int args_size) {
         }
 
         char *variable_name = command_args[1];
-        char value_tokens[MAX_USER_INPUT];
+        char value_tokens[MAX_USER_INPUT] = "";
 
         for (int i = 2; i < args_size; i++) {
             strcat(value_tokens, command_args[i]);
