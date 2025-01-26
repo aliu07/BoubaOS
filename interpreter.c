@@ -1,10 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <ctype.h>
+#include <unistd.h>
 #include "shellmemory.h"
 #include "shell.h"
 
 int MAX_ARGS_SIZE = 7;
+int DIRECTORY_PERMS = 0777;
 
 int badcommand() {
     printf("Unknown Command\n");
@@ -21,10 +25,30 @@ int badcommandTooManyTokens() {
     return 3;
 }
 
+int badCommandErrorOccurred() {
+    printf("Bad command: An error occurred\n");
+    return 4;
+}
+
 // For run command only
 int badcommandFileDoesNotExist() {
     printf("Bad command: File not found\n");
-    return 4;
+    return 5;
+}
+
+int badcommandVariableDoesNotExist() {
+    printf("Bad command: Variable does not exist in shell memory\n");
+    return 6;
+}
+
+int badcommandNameNotAlphanum() {
+    printf("Bad command: Directory/file name not alphanumeric\n");
+    return 7;
+}
+
+int badcommandDirDoesNotExist() {
+    printf("Bad command: Directory name does not exist\n");
+    return 8;
 }
 
 int help();
@@ -33,11 +57,22 @@ int set(char *var, char *value);
 int print(char *var);
 int run(char *script);
 int echo(char *var);
+int my_ls();
+int my_mkdir(char *dirname);
+int my_touch(char *filename);
+int my_cd(char *dirname);
+
+// HELPER FUNCTIONS
+int is_string_alphanumeric(char *string);
 
 // Interpret commands and their arguments
 int interpreter(char* command_args[], int args_size) {
-    int i;
+    // Preliminary validation
+    if (args_size < 1) {
+        return badcommand();
+    }
 
+    int i;
     // Terminate args at newline chars
     for (i = 0; i < args_size; i++) {
         command_args[i][strcspn(command_args[i], "\r\n")] = 0;
@@ -95,6 +130,50 @@ int interpreter(char* command_args[], int args_size) {
         }
 
         return echo(command_args[1]);
+    } else if (strcmp(command_args[0], "my_ls") == 0) {
+
+        if (args_size > 1) {
+            return badcommandTooManyTokens();
+        }
+
+        return my_ls();
+
+    } else if (strcmp(command_args[0], "my_mkdir") == 0) {
+
+        if (args_size < 2) {
+            return badcommandMissingArguments();
+        }
+
+        if (args_size > 2) {
+            return badcommandTooManyTokens();
+        }
+
+        return my_mkdir(command_args[1]);
+
+    } else if (strcmp(command_args[0], "my_touch") == 0) {
+
+        if (args_size < 2) {
+            return badcommandMissingArguments();
+        }
+
+        if (args_size > 2) {
+            return badcommandTooManyTokens();
+        }
+
+        return my_touch(command_args[1]);
+
+    } else if (strcmp(command_args[0], "my_cd") == 0) {
+
+        if (args_size < 2) {
+            return badcommandMissingArguments();
+        }
+
+        if (args_size > 2) {
+            return badcommandTooManyTokens();
+        }
+
+        return my_cd(command_args[1]);
+
     } else {
         return badcommand();
     }
@@ -136,7 +215,13 @@ int set(char *var, char *value) {
 }
 
 int print(char *var) {
-    printf("%s\n", mem_get_value(var));
+    char *memory_value = mem_get_value(var);
+
+    if (memory_value == NULL) {
+        return badcommandVariableDoesNotExist();
+    }
+
+    printf("%s\n", memory_value);
     return 0;
 }
 
@@ -176,4 +261,91 @@ int echo(char *var) {
     }
 
     return 0;
+}
+
+int my_ls() {
+    system("ls");
+    return 0;
+}
+
+int my_mkdir(char *dirname) {
+    // Fetch from memory if preceded by '$' sign
+    if (dirname[0] == '$') {
+        dirname++;
+        dirname = mem_get_value(dirname);
+
+        if (dirname == NULL) {
+            return badcommandVariableDoesNotExist();
+        }
+    }
+
+    if (is_string_alphanumeric(dirname) != 1) {
+        return badcommandNameNotAlphanum();
+    }
+
+    // Error creating directory
+    if (mkdir(dirname, DIRECTORY_PERMS) == -1) {
+        return badCommandErrorOccurred();
+    }
+
+    return 0;
+}
+
+int my_touch(char *filename) {
+    if (is_string_alphanumeric(filename) != 1) {
+        return badcommandNameNotAlphanum();
+    }
+
+    FILE *fptr;
+    fptr = fopen(filename, "w");
+
+    // Error creating file
+    if (fptr == NULL) {
+        return badCommandErrorOccurred();
+    }
+
+    // Error closing file
+    if (fclose(fptr) != 0) {
+        return badCommandErrorOccurred();
+    }
+
+    return 0;
+}
+
+int my_cd(char *dirname) {
+    if (is_string_alphanumeric(dirname) != 1) {
+        return badcommandNameNotAlphanum();
+    }
+
+    if (chdir(dirname) != 0) {
+        return badcommandDirDoesNotExist();
+    }
+
+    return 0;
+}
+
+
+// === HELPER FUNCTIONS ===
+
+/*
+Checks if a string is alphanumeric.
+Returns:
+- 0 if not alphanumeric
+- 1 if alphanumeric
+*/
+int is_string_alphanumeric(char *string) {
+    if (string == NULL) {
+        return 0;
+    }
+
+    int ix = 0;
+    while (string[ix] != '\0') {
+        if (isalnum(string[ix]) == 0) {
+            return 0;
+        }
+
+        ix++;
+    }
+
+    return 1;
 }
