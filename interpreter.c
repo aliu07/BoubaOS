@@ -255,7 +255,7 @@ int echo(char *var) {
         // Get rid of dollar sign
         var++;
         // Fetch variable value from memory
-        print(var);
+        return print(var);
     } else{
         printf("%s\n", var);
     }

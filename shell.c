@@ -56,22 +56,61 @@ int wordEnding(char c) {
 }
 
 int parseInput(char inp[]) {
-    char tmp[200], *words[100];
-    int ix = 0, w = 0;
+    char tmp[200];
+    // Array storing individual commands
+    char *commands[100];
+    // Array to store words of current command
+    char *words[100];
+
+    int cmdCount = 0;
     int wordlen;
     int errorCode;
-    for (ix = 0; inp[ix] == ' ' && ix < 1000; ix++); // skip white spaces
-    while (inp[ix] != '\n' && inp[ix] != '\0' && ix < 1000) {
-        // extract a word
-        for (wordlen = 0; !wordEnding(inp[ix]) && ix < 1000; ix++, wordlen++) {
-            tmp[wordlen] = inp[ix];
-        }
-        tmp[wordlen] = '\0';
-        words[w] = strdup(tmp);
-        w++;
-        if (inp[ix] == '\0') break;
-        ix++;
+
+    // Get first command
+    char *cmd = strtok(inp, ";");
+
+    while (cmd != NULL && cmdCount < MAX_NUM_COMMANDS) {
+        commands[cmdCount] = strdup(cmd);
+        // Get next command. We pass in NULL param to indicate we are still parsing same string 'inp'.
+        cmd = strtok(NULL, ";");
+        cmdCount++;
     }
-    errorCode = interpreter(words, w);
+
+    // Process each command
+    for (int i = 0; i < cmdCount; i++) {
+        int ix = 0;
+        int wordCount = 0;
+
+        // Skip white spaces
+        for (ix = 0; commands[i][ix] == ' ' && ix < MAX_USER_INPUT; ix++);
+
+        while (commands[i][ix] != '\n' && commands[i][ix] != '\0' && ix < MAX_USER_INPUT) {
+            // Extract a word
+            for (wordlen = 0; !wordEnding(commands[i][ix]) && ix < MAX_USER_INPUT; ix++, wordlen++) {
+                tmp[wordlen] = commands[i][ix];
+            }
+
+            tmp[wordlen] = '\0';
+            words[wordCount] = strdup(tmp);
+            wordCount++;
+
+            if (commands[i][ix] == '\0') {
+                break;
+            }
+
+            ix++;
+        }
+
+        if (wordCount > 0) {
+            errorCode = interpreter(words, wordCount);
+
+            for (int j = 0; j < wordCount; j++) {
+                free(words[j]);
+            }
+        }
+
+        free(commands[i]);
+    }
+
     return errorCode;
 }
