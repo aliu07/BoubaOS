@@ -10,20 +10,25 @@ int parseInput(char ui[]);
 
 // Start of everything
 int main(int argc, char *argv[]) {
+    // Set stdout to unbuffered to avoid undefined printing behaviour in
+    // batch mode
+    setvbuf(stdout, NULL, _IONBF, 0);
+
     printf("Shell version 1.3 Created September 2024\n");
-    help();
+    printf("►  Type help to get list of commands\n\n");
+    // fflush(stdout);
 
     int mode_flag = isatty(STDIN_FILENO);  // 1 = interactive mode, 0 = batch mode
     char prompt = '$';  				   // Shell prompt
     char userInput[MAX_USER_INPUT];		   // user's input stored here
     int errorCode = 0;					   // zero means no error, default
 
-    //init user input
+    // Init user input
     for (int i = 0; i < MAX_USER_INPUT; i++) {
         userInput[i] = '\0';
     }
 
-    //init shell memory
+    // Init shell memory
     mem_init();
 
     while (1) {

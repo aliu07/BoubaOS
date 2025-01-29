@@ -73,6 +73,10 @@ int interpreter(char* command_args[], int args_size) {
         return badcommand();
     }
 
+    if (args_size > MAX_ARGS_SIZE) {
+        return badcommandTooManyTokens();
+    }
+
     int i;
     // Terminate args at newline chars
     for (i = 0; i < args_size; i++) {
