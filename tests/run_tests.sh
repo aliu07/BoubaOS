@@ -129,6 +129,8 @@ echo "Test Summary:"
 echo "Total tests: $TOTAL_TESTS"
 echo "Passed: $TOTAL_PASSED"
 echo "Failed: $TOTAL_FAILED"
+echo ""
+echo "See test_results.log for more information"
 
 # Exit with status 1 if any tests failed
 [ $TOTAL_FAILED -eq 0 ] || exit 1
