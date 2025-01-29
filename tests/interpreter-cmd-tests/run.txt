@@ -1,0 +1,4 @@
+set a good
+print a
+run set.txt
+quit
