@@ -125,7 +125,8 @@ echo "Total failed: $TOTAL_FAILED" >> $LOG_FILE
 
 # Print summary to console
 echo ""
-echo "Test Summary:"
+echo "TEST SUMMARY"
+echo "=================="
 echo "Total tests: $TOTAL_TESTS"
 echo "Passed: $TOTAL_PASSED"
 echo "Failed: $TOTAL_FAILED"
