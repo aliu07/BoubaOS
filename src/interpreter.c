@@ -223,24 +223,12 @@ int quit() {
 }
 
 int set(char *var, char *value) {
-    char *link = "=";
-
-    /* PART 1: You might want to write code that looks something like this.
-         You should look up documentation for strcpy and strcat.
-
-    char buffer[MAX_USER_INPUT];
-    strcpy(buffer, var);
-    strcat(buffer, link);
-    strcat(buffer, value);
-    */
-
-    mem_set_value(var, value);
-
+    set_var_value(var, value);
     return 0;
 }
 
 int print(char *var) {
-    char *memory_value = mem_get_value(var);
+    char *memory_value = get_var_value(var);
 
     if (memory_value == NULL) {
         return badcommandVariableDoesNotExist();
@@ -297,7 +285,7 @@ int my_mkdir(char *dirname) {
     // Fetch from memory if preceded by '$' sign
     if (dirname[0] == '$') {
         dirname++;
-        dirname = mem_get_value(dirname);
+        dirname = get_var_value(dirname);
 
         if (dirname == NULL) {
             return badcommandVariableDoesNotExist();
