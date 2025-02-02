@@ -5,10 +5,9 @@
 #include <ctype.h>
 #include <unistd.h>
 #include "shellmemory.h"
+#include "interpreter.h"
 #include "shell.h"
-
-int MAX_ARGS_SIZE = 7;
-int DIRECTORY_PERMS = 0777;
+#include "pcb.h"
 
 int badcommand() {
     printf("Unknown Command\n");
@@ -240,22 +239,30 @@ int print(char *var) {
 
 int run(char *script) {
     int errCode = 0;
-    char line[MAX_USER_INPUT];
-    FILE *p = fopen(script, "rt");  // the program is in a file
+    // "rt" = read text mode
+    FILE *p = fopen(script, "rt");
 
     if (p == NULL) {
         return badcommandFileDoesNotExist();
     }
 
-    fgets(line, MAX_USER_INPUT-1, p);
-    while (1) {
-        errCode = parseInput(line);	// which calls interpreter()
-        memset(line, 0, sizeof(line));
+    // Buffer file contents in array
+    char *file_contents[MAX_FILE_SIZE];
+    char buffer[MAX_USER_INPUT];
+    int line_count = 0;
 
-        if (feof(p)) {
-            break;
-        }
-        fgets(line, MAX_USER_INPUT-1, p);
+    while (fgets(buffer, MAX_USER_INPUT, p) != NULL && line_count < MAX_FILE_SIZE) {
+        file_contents[line_count] = strdup(buffer);
+        line_count++;
+    }
+
+    // Init PCB struct for process... includes writing file contents to shell memory
+    struct PCB *pcb = pcb_init(script, file_contents, line_count);
+
+    // Extract each line of file and execute
+    for (int i = 0; i < pcb->file_length; i++) {
+        int address = pcb->addresses[i];
+        errCode = parseInput(mem_get_value(address));
     }
 
     fclose(p);

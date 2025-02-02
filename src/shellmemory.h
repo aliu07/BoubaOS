@@ -1,5 +1,6 @@
 #define SHELL_MEM_SIZE 32
 #define VAR_TABLE_SIZE 10
+
 void mem_init();
 int find_available_address();
 int mem_set_value(char *value_in);
