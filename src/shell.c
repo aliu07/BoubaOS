@@ -5,6 +5,7 @@
 #include "shell.h"
 #include "interpreter.h"
 #include "shellmemory.h"
+#include "process_table.h"
 
 int parseInput(char ui[]);
 
@@ -30,6 +31,8 @@ int main(int argc, char *argv[]) {
 
     // Init shell memory
     mem_init();
+    // Init process table
+    process_table_init();
 
     while (1) {
         // Check if we are in interactive mode... omit printing prompt char if we are in batch mode

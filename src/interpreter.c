@@ -7,7 +7,7 @@
 #include "shellmemory.h"
 #include "interpreter.h"
 #include "shell.h"
-#include "pcb.h"
+#include "process_table.h"
 
 int badcommand() {
     printf("Unknown Command\n");
@@ -48,6 +48,11 @@ int badcommandNameNotAlphanum() {
 int badcommandDirDoesNotExist() {
     printf("Bad command: Directory name does not exist\n");
     return 8;
+}
+
+int badCommandProcessTableFull() {
+    printf("Bad command: Process table is full\n");
+    return 9;
 }
 
 int help();
@@ -259,6 +264,12 @@ int run(char *script) {
     // Init PCB struct for process... includes writing file contents to shell memory
     struct PCB *pcb = pcb_init(script, file_contents, line_count);
 
+    // Add PCB to process table
+    if (add_process(pcb) == -1) {
+        return badCommandProcessTableFull();
+    }
+
+    // TODO: use PID instead to fetch
     // Extract each line of file and execute
     for (int i = 0; i < pcb->file_length; i++) {
         int address = pcb->addresses[i];
