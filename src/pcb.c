@@ -24,3 +24,14 @@ struct PCB *pcb_init(char *filename, char *file_contents[], int file_length) {
 
     return pcb;
 }
+
+// Frees all dynamically allocated memory for the PCB struct
+// See typedef in pcd.h to get a better idea of what to free
+void pcb_deinit(struct PCB *pcb) {
+    if (pcb != NULL) {
+        // Free filename ptr
+        free(pcb->filename);
+        // Free PCB ptr
+        free(pcb);
+    }
+}

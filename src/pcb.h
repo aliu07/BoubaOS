@@ -9,3 +9,4 @@ typedef struct PCB {
 } PCB;
 
 struct PCB *pcb_init(char *filename, char *file_contents[], int file_length);
+void pcb_deinit(struct PCB *pcb);
