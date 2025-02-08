@@ -273,8 +273,9 @@ int print(char *var) {
 }
 
 int run(char *script) {
-    char *program[] = {script, NULL, NULL};
-    return exec(program, "FCFS");
+    char *programs[MAX_NUM_PROGRAMS];
+    programs[0] = script;
+    return exec(programs, "FCFS");
 }
 
 int echo(char *var) {
