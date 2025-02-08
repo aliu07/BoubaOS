@@ -7,7 +7,7 @@
 #include "shellmemory.h"
 #include "interpreter.h"
 #include "shell.h"
-#include "process_table.h"
+#include "ready_queue.h"
 
 int badcommand() {
     printf("Unknown Command\n");
@@ -265,9 +265,7 @@ int run(char *script) {
     struct PCB *pcb = pcb_init(script, file_contents, line_count);
 
     // Add PCB to process table
-    if (add_process(pcb) == -1) {
-        return badCommandProcessTableFull();
-    }
+    add_process(pcb);
 
     // TODO: use PID instead to fetch
     // Extract each line of file and execute
@@ -275,6 +273,9 @@ int run(char *script) {
         int address = pcb->addresses[i];
         errCode = parseInput(mem_get_value(address));
     }
+
+    // Cleanup
+    pcb_deinit(pcb);
 
     fclose(p);
 

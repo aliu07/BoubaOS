@@ -21,6 +21,7 @@ struct PCB *pcb_init(char *filename, char *file_contents[], int file_length) {
     }
 
     pcb->program_counter = 0;
+    pcb->next = NULL;
 
     return pcb;
 }
