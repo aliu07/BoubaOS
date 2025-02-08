@@ -1,4 +1,4 @@
-#define SHELL_MEM_SIZE 32
+#define SHELL_MEM_SIZE 1024
 #define VAR_TABLE_SIZE 10
 
 void mem_init();

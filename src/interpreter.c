@@ -423,6 +423,8 @@ int exec(char *programs[], char *policy) {
         return scheduler_sjf();
     } else if (strcmp(policy, "RR") == 0) {
         return scheduler_rr(RR_TIMESLICE);
+    } else if (strcmp(policy, "RR30") == 0) {
+        return scheduler_rr(RR30_TIMESLICE);
     } else if (strcmp(policy, "AGING") == 0) {
         return scheduler_aging();
     } else {

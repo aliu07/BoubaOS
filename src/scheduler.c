@@ -39,7 +39,6 @@ int scheduler_rr(int time_slice) {
         for (int i = 0; i < time_slice; i++) {
             // Check if exhausted lines to execute
             if (pcb->program_counter == pcb->file_length) {
-                pcb_deinit(pcb);
                 break;
             }
 
@@ -49,7 +48,11 @@ int scheduler_rr(int time_slice) {
         }
 
         // Add PCB back to queue if still instructions to execute
-        add_process(pcb);
+        if (pcb->program_counter == pcb->file_length) {
+            pcb_deinit(pcb);
+        } else {
+            add_process(pcb);
+        }
     }
 
     return errCode;

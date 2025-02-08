@@ -38,7 +38,9 @@ void pcb_deinit(struct PCB *pcb) {
 
         // Free filename ptr
         free(pcb->filename);
+        pcb->filename = NULL;
         // Free PCB ptr
         free(pcb);
+        pcb = NULL;
     }
 }

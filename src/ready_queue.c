@@ -25,7 +25,7 @@ int add_process(struct PCB *pcb) {
     // Add to end of queue if not empty
     struct PCB *curr = ready_queue_head;
 
-    while (curr != NULL) {
+    while (curr->next != NULL) {
         curr = curr->next;
     }
 
@@ -42,6 +42,8 @@ struct PCB* pop_process() {
 
     // Get PCB at head of queue
     struct PCB *popped = ready_queue_head;
+    // Set new head of queue
+    ready_queue_head = popped->next;
     // Clear next ptr of popped PCB
     popped->next = NULL;
 
@@ -56,6 +58,10 @@ int get_process_count() {
 
 void sort_ready_queue() {
     struct PCB *queue[MAX_NUM_PROGRAMS];
+
+    for (int i = 0; i < MAX_NUM_PROGRAMS; i++) {
+        queue[i] = pop_process();
+    }
 
     // Bubble sort PCBs by file length
     for (int i = 0; i < MAX_NUM_PROGRAMS; i++) {
