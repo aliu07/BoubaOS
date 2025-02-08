@@ -23,10 +23,38 @@ int scheduler_fcfs() {
     return errCode;
 }
 
-void scheduler_sjf() {
-    return;
+int scheduler_sjf() {
+    // Sort PCBs in ready queue by file length
+    sort_ready_queue();
+    // Execution order is same as FCFS now since sorted...
+    return scheduler_fcfs();
 }
 
-void scheduler_rr() {
-    return;
+int scheduler_rr(int time_slice) {
+    int errCode;
+
+    while (get_process_count() > 0) {
+        struct PCB *pcb = pop_process();
+
+        for (int i = 0; i < time_slice; i++) {
+            // Check if exhausted lines to execute
+            if (pcb->program_counter == pcb->file_length) {
+                pcb_deinit(pcb);
+                break;
+            }
+
+            int address = pcb->addresses[pcb->program_counter];
+            errCode = parseInput(mem_get_value(address));
+            pcb->program_counter++;
+        }
+
+        // Add PCB back to queue if still instructions to execute
+        add_process(pcb);
+    }
+
+    return errCode;
+}
+
+int scheduler_aging() {
+    return 0;
 }

@@ -53,3 +53,25 @@ struct PCB* pop_process() {
 int get_process_count() {
     return process_count;
 }
+
+void sort_ready_queue() {
+    struct PCB *queue[MAX_NUM_PROGRAMS];
+
+    // Bubble sort PCBs by file length
+    for (int i = 0; i < MAX_NUM_PROGRAMS; i++) {
+        for (int j = i; j < MAX_NUM_PROGRAMS; j++) {
+            if (queue[i] != NULL && queue[j] != NULL && queue[i]->file_length > queue[j]->file_length) {
+                struct PCB *tmp = queue[i];
+                queue[i] = queue[j];
+                queue[j] = tmp;
+            }
+        }
+    }
+
+    // Insert sorted PCBs back into ready queue
+    for (int i = 0; i < MAX_NUM_PROGRAMS; i++) {
+        if (queue[i] != NULL) {
+            add_process(queue[i]);
+        }
+    }
+}

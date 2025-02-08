@@ -419,6 +419,12 @@ int exec(char *programs[], char *policy) {
 
     if (strcmp(policy, "FCFS") == 0) {
         return scheduler_fcfs();
+    } else if (strcmp(policy, "SJF") == 0) {
+        return scheduler_sjf();
+    } else if (strcmp(policy, "RR") == 0) {
+        return scheduler_rr(RR_TIMESLICE);
+    } else if (strcmp(policy, "AGING") == 0) {
+        return scheduler_aging();
     } else {
         return badcommandInvalidPolicy();
     }
