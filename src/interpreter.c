@@ -8,6 +8,7 @@
 #include "interpreter.h"
 #include "shell.h"
 #include "ready_queue.h"
+#include "scheduler.h"
 
 int badcommand() {
     printf("Unknown Command\n");
@@ -55,6 +56,11 @@ int badCommandProcessTableFull() {
     return 9;
 }
 
+int badcommandInvalidPolicy() {
+    printf("Bad command: Invalid policy selected\n");
+    return 10;
+}
+
 int help();
 int quit();
 int set(char *var, char *value);
@@ -66,6 +72,7 @@ int my_mkdir(char *dirname);
 int my_touch(char *filename);
 int my_cd(char *dirname);
 int my_fork(char **args, int args_size);
+int exec(char *programs[], char *policy);
 
 // HELPER FUNCTIONS
 int is_string_alphanumeric(char *string);
@@ -196,6 +203,29 @@ int interpreter(char* command_args[], int args_size) {
         // Skip "exec" and pass in remaining arguments only
         return my_fork(command_args + 1, args_size - 1);
 
+    } else if (strcmp(command_args[0], "exec") == 0) {
+
+        if (args_size < 3) {
+            return badcommandMissingArguments();
+        }
+
+        if (args_size > 5) {
+            return badcommandTooManyTokens();
+        }
+
+        char *programs[MAX_NUM_PROGRAMS] = {NULL};
+        int program_count = 0;
+
+        for (int i = 1; i < args_size - 1; i++) {
+            programs[program_count] = command_args[i];
+            program_count++;
+        }
+
+        // Last arg is policy
+        char *policy = command_args[args_size - 1];
+
+        return exec(programs, policy);
+
     } else {
         return badcommand();
     }
@@ -243,43 +273,8 @@ int print(char *var) {
 }
 
 int run(char *script) {
-    int errCode = 0;
-    // "rt" = read text mode
-    FILE *p = fopen(script, "rt");
-
-    if (p == NULL) {
-        return badcommandFileDoesNotExist();
-    }
-
-    // Buffer file contents in array
-    char *file_contents[MAX_FILE_SIZE];
-    char buffer[MAX_USER_INPUT];
-    int line_count = 0;
-
-    while (fgets(buffer, MAX_USER_INPUT, p) != NULL && line_count < MAX_FILE_SIZE) {
-        file_contents[line_count] = strdup(buffer);
-        line_count++;
-    }
-
-    // Init PCB struct for process... includes writing file contents to shell memory
-    struct PCB *pcb = pcb_init(script, file_contents, line_count);
-
-    // Add PCB to process table
-    add_process(pcb);
-
-    // TODO: use PID instead to fetch
-    // Extract each line of file and execute
-    for (int i = 0; i < pcb->file_length; i++) {
-        int address = pcb->addresses[i];
-        errCode = parseInput(mem_get_value(address));
-    }
-
-    // Cleanup
-    pcb_deinit(pcb);
-
-    fclose(p);
-
-    return errCode;
+    char *program[] = {script, NULL, NULL};
+    return exec(program, "FCFS");
 }
 
 int echo(char *var) {
@@ -386,6 +381,45 @@ int my_fork(char **args, int args_size) {
         waitpid(pid, &status, 0);
 
         return WEXITSTATUS(status);
+    }
+}
+
+int exec(char *programs[], char *policy) {
+    for (int i = 0; i < MAX_NUM_PROGRAMS; i++) {
+        char *script = programs[i];
+
+        if (script != NULL) {
+            // "rt" = read text mode
+            FILE *p = fopen(script, "rt");
+
+            if (p == NULL) {
+                return badcommandFileDoesNotExist();
+            }
+
+            // Buffer file contents in array
+            char *file_contents[MAX_FILE_SIZE];
+            char buffer[MAX_USER_INPUT];
+            int line_count = 0;
+
+            while (fgets(buffer, MAX_USER_INPUT, p) != NULL && line_count < MAX_FILE_SIZE) {
+                file_contents[line_count] = strdup(buffer);
+                line_count++;
+            }
+
+            fclose(p);
+
+            // Init PCB struct for process... includes writing file contents to shell memory
+            struct PCB *pcb = pcb_init(script, file_contents, line_count);
+
+            // Add PCB to ready queue
+            add_process(pcb);
+        }
+    }
+
+    if (strcmp(policy, "FCFS") == 0) {
+        return scheduler_fcfs();
+    } else {
+        return badcommandInvalidPolicy();
     }
 }
 
