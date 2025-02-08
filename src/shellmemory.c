@@ -105,3 +105,10 @@ char *get_var_value(char *var_in) {
     // Case variable not found
     return NULL;
 }
+
+void free_memory_entry(int address) {
+    if (address >= 0 && address < SHELL_MEM_SIZE && shellmemory[address] != NULL) {
+        free(shellmemory[address]);
+        shellmemory[address] = NULL;
+    }
+}

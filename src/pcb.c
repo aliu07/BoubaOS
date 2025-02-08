@@ -1,4 +1,5 @@
 #include<stdlib.h>
+#include<string.h>
 #include "shellmemory.h"
 #include "pcb.h"
 
@@ -11,7 +12,7 @@ struct PCB *pcb_init(char *filename, char *file_contents[], int file_length) {
     }
 
     pcb->pid = 0;
-    pcb->filename = filename;
+    pcb->filename = strdup(filename);
     pcb->file_length = file_length;
 
     // Need logic to compute addresses
@@ -30,6 +31,11 @@ struct PCB *pcb_init(char *filename, char *file_contents[], int file_length) {
 // See typedef in pcd.h to get a better idea of what to free
 void pcb_deinit(struct PCB *pcb) {
     if (pcb != NULL) {
+        // Free memory entries allocated to file contents
+        for (int i = 0; i < pcb->file_length; i++) {
+            free_memory_entry(pcb->addresses[i]);
+        }
+
         // Free filename ptr
         free(pcb->filename);
         // Free PCB ptr
