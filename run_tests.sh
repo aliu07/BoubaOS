@@ -2,11 +2,11 @@
 
 # Store diretory paths
 SCRIPT_DIR=$(pwd)
-SRC_DIR="$SCRIPT_DIR/../src"
+BUILD_DIR="$SCRIPT_DIR/build"
+TEST_DIR="$SCRIPT_DIR/tests"
 LOG_FILE="$SCRIPT_DIR/test_results.log"
 
-# Change to src directory and compile
-cd "$SRC_DIR"
+# Compile
 make clean && make
 
 if [ $? -ne 0 ]; then
@@ -35,8 +35,8 @@ cleanup_test_artifacts() {
 }
 
 # Iterate through each test directory
-for test_dir in "$SCRIPT_DIR"/*/; do
-    if [ ! -d "$test_dir" ] || [ "$test_dir" = "$SCRIPT_DIR/" ]; then
+for test_dir in "$TEST_DIR"/*/; do
+    if [ ! -d "$test_dir" ] || [ "$test_dir" = "$TEST_DIR/" ]; then
         continue
     fi
 
@@ -45,7 +45,7 @@ for test_dir in "$SCRIPT_DIR"/*/; do
     echo "----------------------" >> $LOG_FILE
 
     # Copy executable to test directory
-    cp "$SRC_DIR/mysh" "$test_dir"
+    cp "$BUILD_DIR/mysh" "$test_dir"
 
     # Change to test directory
     cd "$test_dir"
