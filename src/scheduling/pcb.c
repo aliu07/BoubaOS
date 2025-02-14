@@ -1,7 +1,8 @@
-#include<stdlib.h>
-#include<string.h>
-#include "shellmemory.h"
-#include "pcb.h"
+#include <stdlib.h>
+#include <string.h>
+
+#include "../../include/memory/shellmemory.h"
+#include "../../include/scheduling/pcb.h"
 
 // Start PIDs at 1
 static int next_pid = 1;

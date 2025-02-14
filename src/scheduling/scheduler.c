@@ -1,6 +1,6 @@
-#include "shell.h"
-#include "shellmemory.h"
-#include "ready_queue.h"
+#include "../../include/core/shell.h"
+#include "../../include/memory/shellmemory.h"
+#include "../../include/scheduling/ready_queue.h"
 
 // First-come, first-server policy
 // Execute each script in queue until completion sequentially

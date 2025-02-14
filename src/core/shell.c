@@ -2,10 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include "shell.h"
-#include "interpreter.h"
-#include "shellmemory.h"
-#include "ready_queue.h"
+
+#include "../../include/core/shell.h"
+#include "../../include/core/interpreter.h"
+#include "../../include/memory/shellmemory.h"
+#include "../../include/scheduling/ready_queue.h"
 
 int parseInput(char ui[]);
 

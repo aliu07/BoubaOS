@@ -1,7 +1,8 @@
 #include <string.h>
 #include <stdlib.h>
-#include<stdio.h>
-#include "shellmemory.h"
+#include <stdio.h>
+
+#include "../../include/memory/shellmemory.h"
 
 struct var_table_entry {
     char *var;

@@ -1,4 +1,4 @@
-#include "interpreter.h"
+#include "../core/interpreter.h"
 
 typedef struct PCB {
     int pid;

@@ -1,6 +1,7 @@
 #include <stdlib.h>
-#include "ready_queue.h"
 #include <stdio.h>
+
+#include "../../include/scheduling/ready_queue.h"
 
 static struct PCB *ready_queue_head = NULL;
 static int process_count = 0;
