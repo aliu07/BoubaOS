@@ -7,12 +7,15 @@ TEST_DIR="$SCRIPT_DIR/tests"
 LOG_FILE="$SCRIPT_DIR/test_results.log"
 
 # Compile
-make clean && make
+rm -rf build
+cmake -B build -S .
 
 if [ $? -ne 0 ]; then
-    echo "Compilation failed"
+    echo "CMake configuration failed"
     exit 1
 fi
+
+cmake --build build
 
 # Create/clear log file
 echo "Test Results" > "$LOG_FILE"
