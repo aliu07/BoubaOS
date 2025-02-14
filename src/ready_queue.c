@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "ready_queue.h"
+#include <stdio.h>
 
 static struct PCB *ready_queue_head = NULL;
 static int process_count = 0;
@@ -26,6 +27,21 @@ int append_process(struct PCB *pcb) {
     }
 
     curr->next = pcb;
+    return pcb->pid;
+}
+
+int appendleft_process(struct PCB *pcb) {
+    process_count++;
+
+    // If queue empty, make head
+    if (ready_queue_head == NULL) {
+        ready_queue_head = pcb;
+        return pcb->pid;
+    }
+
+    // Add to front of queue if not empty
+    pcb->next = ready_queue_head;
+    ready_queue_head = pcb;
     return pcb->pid;
 }
 
@@ -62,7 +78,7 @@ void sort_ready_queue() {
     // Bubble sort PCBs by file length
     for (int i = 0; i < MAX_NUM_PROGRAMS; i++) {
         for (int j = i; j < MAX_NUM_PROGRAMS; j++) {
-            if (queue[i] != NULL && queue[j] != NULL && queue[i]->file_length > queue[j]->file_length) {
+            if (queue[i] != NULL && queue[j] != NULL && queue[i]->job_score > queue[j]->job_score) {
                 struct PCB *tmp = queue[i];
                 queue[i] = queue[j];
                 queue[j] = tmp;
@@ -76,4 +92,26 @@ void sort_ready_queue() {
             append_process(queue[i]);
         }
     }
+}
+
+void age_ready_queue() {
+    struct PCB *curr = ready_queue_head;
+
+    while (curr != NULL) {
+        // Cap minimum job score at 0
+        if (curr->job_score > 0) {
+            curr->job_score--;
+        }
+
+        curr = curr->next;
+    }
+}
+
+// Returns the job score of the PCB at the head of the ready queue
+int peek_ready_queue() {
+    if (ready_queue_head != NULL) {
+        return ready_queue_head->job_score;
+    }
+
+    return -1;
 }
