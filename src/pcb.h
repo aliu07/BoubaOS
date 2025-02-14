@@ -6,6 +6,7 @@ typedef struct PCB {
     int file_length;
     int addresses[MAX_FILE_SIZE];
     int program_counter;
+    int job_score;
     struct PCB *next;
 } PCB;
 

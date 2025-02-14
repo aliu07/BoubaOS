@@ -2,13 +2,10 @@
 #include "ready_queue.h"
 
 static struct PCB *ready_queue_head = NULL;
-// Start PIDs at 1
-static int next_pid = 1;
 static int process_count = 0;
 
 void ready_queue_init() {
     ready_queue_head = NULL;
-    next_pid = 1;
     process_count = 0;
 }
 

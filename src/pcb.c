@@ -3,6 +3,9 @@
 #include "shellmemory.h"
 #include "pcb.h"
 
+// Start PIDs at 1
+static int next_pid = 1;
+
 struct PCB *pcb_init(char *filename, char *file_contents[], int file_length) {
     struct PCB *pcb = malloc(sizeof(struct PCB));
 
@@ -11,7 +14,7 @@ struct PCB *pcb_init(char *filename, char *file_contents[], int file_length) {
         return NULL;
     }
 
-    pcb->pid = 0;
+    pcb->pid = next_pid++;
     pcb->filename = strdup(filename);
     pcb->file_length = file_length;
 
@@ -22,6 +25,8 @@ struct PCB *pcb_init(char *filename, char *file_contents[], int file_length) {
     }
 
     pcb->program_counter = 0;
+    // Our definition of job score will be the length of the file
+    pcb->job_score = file_length;
     pcb->next = NULL;
 
     return pcb;
