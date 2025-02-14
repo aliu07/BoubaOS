@@ -60,6 +60,7 @@ int badcommandInvalidPolicy() {
     printf("Bad command: Invalid policy selected\n");
     return 10;
 }
+#include "../../include/error/badcommand.h"
 
 int help();
 int quit();
