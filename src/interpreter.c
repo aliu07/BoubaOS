@@ -413,7 +413,7 @@ int exec(char *programs[], char *policy) {
             struct PCB *pcb = pcb_init(script, file_contents, line_count);
 
             // Add PCB to ready queue
-            add_process(pcb);
+            append_process(pcb);
         }
     }
 

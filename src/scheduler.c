@@ -51,7 +51,7 @@ int scheduler_rr(int time_slice) {
         if (pcb->program_counter == pcb->file_length) {
             pcb_deinit(pcb);
         } else {
-            add_process(pcb);
+            append_process(pcb);
         }
     }
 

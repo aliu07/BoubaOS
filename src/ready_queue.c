@@ -12,8 +12,7 @@ void ready_queue_init() {
     process_count = 0;
 }
 
-int add_process(struct PCB *pcb) {
-    pcb->pid = next_pid++;
+int append_process(struct PCB *pcb) {
     process_count++;
 
     // If queue empty, make head
@@ -77,7 +76,7 @@ void sort_ready_queue() {
     // Insert sorted PCBs back into ready queue
     for (int i = 0; i < MAX_NUM_PROGRAMS; i++) {
         if (queue[i] != NULL) {
-            add_process(queue[i]);
+            append_process(queue[i]);
         }
     }
 }
