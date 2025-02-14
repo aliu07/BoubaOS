@@ -14,6 +14,7 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/include/core
     ${PROJECT_SOURCE_DIR}/include/memory
     ${PROJECT_SOURCE_DIR}/include/scheduling
+    ${PROJECT_SOURCE_DIR}/include/error
 )
 
 # Create executable
@@ -24,4 +25,5 @@ add_executable(mysh
     src/scheduling/pcb.c
     src/scheduling/ready_queue.c
     src/scheduling/scheduler.c
+    src/error/badcommand.c
 )
