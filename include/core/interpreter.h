@@ -9,3 +9,15 @@
 
 int interpreter(char *command_args[], int args_size);
 int help();
+int help();
+int quit();
+int set(char *var, char *value);
+int print(char *var);
+int run(char *script);
+int echo(char *var);
+int my_ls();
+int my_mkdir(char *dirname);
+int my_touch(char *filename);
+int my_cd(char *dirname);
+int my_fork(char **args, int args_size);
+int exec(char *programs[], char *policy);

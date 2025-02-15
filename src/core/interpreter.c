@@ -12,20 +12,7 @@
 #include "../../include/scheduling/scheduler.h"
 #include "../../include/error/badcommand.h"
 
-int help();
-int quit();
-int set(char *var, char *value);
-int print(char *var);
-int run(char *script);
-int echo(char *var);
-int my_ls();
-int my_mkdir(char *dirname);
-int my_touch(char *filename);
-int my_cd(char *dirname);
-int my_fork(char **args, int args_size);
-int exec(char *programs[], char *policy);
-
-// HELPER FUNCTIONS
+// Private helper function headers
 int is_string_alphanumeric(char *string);
 
 // Interpret commands and their arguments
