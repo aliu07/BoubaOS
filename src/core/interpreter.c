@@ -13,7 +13,7 @@
 #include "../../include/error/badcommand.h"
 
 // Private helper function headers
-int is_string_alphanumeric(char *string);
+int is_valid_name(char *string);
 
 // Interpret commands and their arguments
 int interpreter(char* command_args[], int args_size) {
@@ -245,7 +245,7 @@ int my_mkdir(char *dirname) {
         }
     }
 
-    if (is_string_alphanumeric(dirname) != 1) {
+    if (is_valid_name(dirname) != 1) {
         return badcommandNameNotAlphanum();
     }
 
@@ -258,7 +258,7 @@ int my_mkdir(char *dirname) {
 }
 
 int my_touch(char *filename) {
-    if (is_string_alphanumeric(filename) != 1) {
+    if (is_valid_name(filename) != 1) {
         return badcommandNameNotAlphanum();
     }
 
@@ -279,7 +279,7 @@ int my_touch(char *filename) {
 }
 
 int my_cd(char *dirname) {
-    if (is_string_alphanumeric(dirname) != 1) {
+    if (is_valid_name(dirname) != 1) {
         return badcommandNameNotAlphanum();
     }
 
@@ -374,19 +374,20 @@ int exec(char *programs[], char *policy) {
 // === HELPER FUNCTIONS ===
 
 /*
-Checks if a string is alphanumeric.
+Checks if a string is valid. Used for checking file and directory names.
+Alphanumeric characters and underscores are allowed.
 Returns:
 - 0 if not alphanumeric
 - 1 if alphanumeric
 */
-int is_string_alphanumeric(char *string) {
+int is_valid_name(char *string) {
     if (string == NULL) {
         return 0;
     }
 
     int ix = 0;
     while (string[ix] != '\0') {
-        if (isalnum(string[ix]) == 0) {
+        if (isalnum(string[ix]) == 0 && string[ix] != '_') {
             return 0;
         }
 
