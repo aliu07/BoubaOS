@@ -330,27 +330,38 @@ int exec(char *programs[], char *policy) {
         char *script = programs[i];
 
         if (script != NULL) {
-            // "rt" = read text mode
-            FILE *p = fopen(script, "rt");
+            // New PCB to be created
+            struct PCB *pcb;
+            // Potential PCB with same script name (for shared memory)
+            struct PCB *duplicate = find_duplicate_script(script);
 
-            if (p == NULL) {
-                return badcommandFileDoesNotExist();
+            // If duplicate found, we init PCB with same memory locations for memory sharing
+            // Else we init a new PCB
+            if (duplicate != NULL) {
+                pcb = pcb_dup_init(duplicate);
+            } else {
+                // "rt" = read text mode
+                FILE *p = fopen(script, "rt");
+
+                if (p == NULL) {
+                    return badcommandFileDoesNotExist();
+                }
+
+                // Buffer file contents in array
+                char *file_contents[MAX_FILE_SIZE];
+                char buffer[MAX_USER_INPUT];
+                int line_count = 0;
+
+                while (fgets(buffer, MAX_USER_INPUT, p) != NULL && line_count < MAX_FILE_SIZE) {
+                    file_contents[line_count] = strdup(buffer);
+                    line_count++;
+                }
+
+                fclose(p);
+
+                // Init PCB struct for process... includes writing file contents to shell memory
+                pcb = pcb_init(script, file_contents, line_count);
             }
-
-            // Buffer file contents in array
-            char *file_contents[MAX_FILE_SIZE];
-            char buffer[MAX_USER_INPUT];
-            int line_count = 0;
-
-            while (fgets(buffer, MAX_USER_INPUT, p) != NULL && line_count < MAX_FILE_SIZE) {
-                file_contents[line_count] = strdup(buffer);
-                line_count++;
-            }
-
-            fclose(p);
-
-            // Init PCB struct for process... includes writing file contents to shell memory
-            struct PCB *pcb = pcb_init(script, file_contents, line_count);
 
             // Add PCB to ready queue
             append_process(pcb);

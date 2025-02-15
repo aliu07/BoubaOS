@@ -2,12 +2,12 @@
 #include <string.h>
 
 #include "../../include/memory/shellmemory.h"
-#include "../../include/scheduling/pcb.h"
+#include "../../include/scheduling/ready_queue.h"
 
 // Start PIDs at 1
 static int next_pid = 1;
 
-struct PCB *pcb_init(char *filename, char *file_contents[], int file_length) {
+struct PCB* pcb_init(char *filename, char *file_contents[], int file_length) {
     struct PCB *pcb = malloc(sizeof(struct PCB));
 
     // Error allocating memory
@@ -33,13 +33,41 @@ struct PCB *pcb_init(char *filename, char *file_contents[], int file_length) {
     return pcb;
 }
 
+// This constructor is used whenever a duplicate PCB is found. We pass the addresses directly
+// to enable memory sharing.
+struct PCB* pcb_dup_init(struct PCB *dup) {
+    struct PCB *pcb = malloc(sizeof(struct PCB));
+
+    // Error allocating memory
+    if (pcb == NULL) {
+        return NULL;
+    }
+
+    pcb->pid = next_pid++;
+    pcb->filename = strdup(dup->filename);
+    pcb->file_length = dup->file_length;
+
+    for (int i = 0; i < MAX_FILE_SIZE; i++) {
+        pcb->addresses[i] = dup->addresses[i];
+    }
+
+    pcb->program_counter = 0;
+    pcb->job_score = dup->job_score;
+    pcb->next = NULL;
+
+    return pcb;
+}
+
 // Frees all dynamically allocated memory for the PCB struct
 // See typedef in pcd.h to get a better idea of what to free
 void pcb_deinit(struct PCB *pcb) {
     if (pcb != NULL) {
-        // Free memory entries allocated to file contents
-        for (int i = 0; i < pcb->file_length; i++) {
-            free_memory_entry(pcb->addresses[i]);
+        // Free memory entries allocated to file contents only if there
+        // are no other PCBs sharing the memory
+        if (find_duplicate_script(pcb->filename) == NULL) {
+            for (int i = 0; i < pcb->file_length; i++) {
+                free_memory_entry(pcb->addresses[i]);
+            }
         }
 
         // Free filename ptr

@@ -8,3 +8,4 @@ int get_process_count();
 void sort_ready_queue();
 void age_ready_queue();
 int peek_ready_queue();
+struct PCB* find_duplicate_script(char *script);

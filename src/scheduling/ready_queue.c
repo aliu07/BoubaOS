@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "../../include/scheduling/ready_queue.h"
 
@@ -115,4 +116,22 @@ int peek_ready_queue() {
     }
 
     return -1;
+}
+
+// Given a string representing a script's name, return a PCB
+// object if the script is already loaded in memory, NULL otherwise.
+struct PCB* find_duplicate_script(char *script) {
+    struct PCB *curr = ready_queue_head;
+
+    // Scan ready queue
+    while (curr != NULL) {
+        if (strcmp(curr->filename, script) == 0) {
+            return curr;
+        }
+
+        curr = curr->next;
+    }
+
+    // Case no matches found
+    return NULL;
 }
