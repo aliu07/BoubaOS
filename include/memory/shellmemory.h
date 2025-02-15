@@ -1,5 +1,8 @@
-#define SHELL_MEM_SIZE 1024
+#define SHELL_MEM_SIZE 15
 #define VAR_TABLE_SIZE 10
+// We use a frame size of 3 rather than a power of 2 to test interesting cases
+// without having to implement more scheduling policies
+#define FRAME_SIZE 3
 
 void mem_init();
 int find_available_address();
