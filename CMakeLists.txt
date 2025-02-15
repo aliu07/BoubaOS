@@ -26,4 +26,5 @@ add_executable(mysh
     src/scheduling/ready_queue.c
     src/scheduling/scheduler.c
     src/error/badcommand.c
+    src/memory/backing_store.c
 )

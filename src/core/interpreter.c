@@ -11,6 +11,7 @@
 #include "../../include/scheduling/ready_queue.h"
 #include "../../include/scheduling/scheduler.h"
 #include "../../include/error/badcommand.h"
+#include "../../include/memory/backing_store.h"
 
 // Private helper function headers
 int is_valid_name(char *string);
@@ -190,6 +191,7 @@ int help() {
 }
 
 int quit() {
+    backing_store_deinit();
     printf("Bye!\n");
     exit(0);
 }

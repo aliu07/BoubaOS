@@ -7,18 +7,17 @@
 #include "../../include/core/interpreter.h"
 #include "../../include/memory/shellmemory.h"
 #include "../../include/scheduling/ready_queue.h"
+#include "../../include/memory/backing_store.h"
 
 int parseInput(char ui[]);
 
 // Start of everything
 int main(int argc, char *argv[]) {
-    // Set stdout to unbuffered to avoid undefined printing behaviour in
-    // batch mode
+    // Set stdout to unbuffered to avoid undefined printing behaviour in batch mode
     setvbuf(stdout, NULL, _IONBF, 0);
 
     printf("Shell version 1.3 Created September 2024\n");
     printf("►  Type help to get list of commands\n\n");
-    // fflush(stdout);
 
     int mode_flag = isatty(STDIN_FILENO);  // 1 = interactive mode, 0 = batch mode
     char prompt = '$';  				   // Shell prompt
@@ -34,6 +33,8 @@ int main(int argc, char *argv[]) {
     mem_init();
     // Init process table
     ready_queue_init();
+    // Init backing store
+    backing_store_init();
 
     while (1) {
         // Check if we are in interactive mode... omit printing prompt char if we are in batch mode
