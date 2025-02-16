@@ -14,7 +14,8 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/include/core
     ${PROJECT_SOURCE_DIR}/include/memory
     ${PROJECT_SOURCE_DIR}/include/scheduling
-    ${PROJECT_SOURCE_DIR}/include/error
+    ${PROJECT_SOURCE_DIR}/include/utils
+    ${PROJECT_SOURCE_DIR}/include/commands
 )
 
 # Create executable
@@ -25,6 +26,19 @@ add_executable(mysh
     src/scheduling/pcb.c
     src/scheduling/ready_queue.c
     src/scheduling/scheduler.c
-    src/error/badcommand.c
+    src/utils/badcommand.c
+    src/utils/utils.c
     src/memory/backing_store.c
+    src/commands/echo.c
+    src/commands/exec.c
+    src/commands/help.c
+    src/commands/my_cd.c
+    src/commands/my_fork.c
+    src/commands/my_ls.c
+    src/commands/my_mkdir.c
+    src/commands/my_touch.c
+    src/commands/print.c
+    src/commands/quit.c
+    src/commands/run.c
+    src/commands/set.c
 )
