@@ -50,3 +50,8 @@ int badcommandInvalidPolicy() {
     printf("Bad command: Invalid policy selected\n");
     return 10;
 }
+
+int badcommandErrorReadingFromBackingStore() {
+    printf("Bad command: Error occurred while reading from backing store\n");
+    return 11;
+}

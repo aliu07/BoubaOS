@@ -15,6 +15,8 @@
 
 // Private helper function headers
 int is_valid_name(char *string);
+int copy_files_to_backing_store(char *programs[]); // Used in exec
+int build_ready_queue(char *programs[]); // Used in exec
 
 // Interpret commands and their arguments
 int interpreter(char* command_args[], int args_size) {
@@ -326,6 +328,118 @@ int my_fork(char **args, int args_size) {
 }
 
 int exec(char *programs[], char *policy) {
+    int errCode;
+
+    errCode = copy_files_to_backing_store(programs);
+
+    if (errCode != 0) {
+        return errCode;
+    }
+
+    errCode = build_ready_queue(programs);
+
+    if (errCode != 0) {
+        return errCode;
+    }
+
+    if (strcmp(policy, "FCFS") == 0) {
+        return scheduler_fcfs();
+    } else if (strcmp(policy, "SJF") == 0) {
+        return scheduler_sjf();
+    } else if (strcmp(policy, "RR") == 0) {
+        return scheduler_rr(RR_TIMESLICE);
+    } else if (strcmp(policy, "RR30") == 0) {
+        return scheduler_rr(RR30_TIMESLICE);
+    } else if (strcmp(policy, "AGING") == 0) {
+        return scheduler_aging();
+    } else {
+        return badcommandInvalidPolicy();
+    }
+}
+
+
+// === HELPER FUNCTIONS ===
+
+/*
+  Checks if a string is valid. Used for checking file and directory names.
+  Alphanumeric characters and underscores are allowed.
+  Returns:
+  - 0 if not alphanumeric
+  - 1 if alphanumeric
+*/
+int is_valid_name(char *string) {
+    if (string == NULL) {
+        return 0;
+    }
+
+    int ix = 0;
+    while (string[ix] != '\0') {
+        if (isalnum(string[ix]) == 0 && string[ix] != '_') {
+            return 0;
+        }
+
+        ix++;
+    }
+
+    return 1;
+}
+
+/*
+  Copies files to backing store folder. If many filenames passed in the programs array
+  are identical, only one copy is made.
+*/
+int copy_files_to_backing_store(char *programs[]) {
+    for (int i = 0; i < MAX_NUM_PROGRAMS; i++) {
+        char *script = programs[i];
+
+        // Copy scripts into backing store folder
+        if (script != NULL) {
+            // Buffers to hold source and destination filepath
+            char source_path[256];
+            char dest_path[256];
+            // Get filepaths
+            snprintf(source_path, sizeof(source_path), "%s", script);
+            snprintf(dest_path, sizeof(dest_path), "./backing_store/%s", script);
+
+            // If file already exists in backing store, then skip copying
+            struct stat file_stats;
+            if (stat(dest_path, &file_stats) == 0) {
+                continue;
+            }
+
+            // Open source file for reading
+            FILE *source = fopen(source_path, "rb");
+            if (source == NULL) {
+                return badcommandFileDoesNotExist();
+            }
+
+            // Open dest file for writing
+            FILE *dest = fopen(dest_path, "wb");
+            if (dest == NULL) {
+                return badCommandErrorOccurred();
+            }
+
+            // Copy file contents from src to dest
+            char buffer[MAX_USER_INPUT];
+            size_t bytes;
+            while ((bytes = fread(buffer, 1, sizeof(buffer), source)) > 0) {
+                fwrite(buffer, 1, bytes, dest);
+            }
+
+            // Close files
+            fclose(source);
+            fclose(dest);
+        }
+    }
+
+    return 0;
+}
+
+/*
+  This helper function reads each file from the backing store and creates the appropriate amount
+  of PCBs for each program and adds them to the ready queue.
+*/
+int build_ready_queue(char *programs[]) {
     for (int i = 0; i < MAX_NUM_PROGRAMS; i++) {
         char *script = programs[i];
 
@@ -340,11 +454,12 @@ int exec(char *programs[], char *policy) {
             if (duplicate != NULL) {
                 pcb = pcb_dup_init(duplicate);
             } else {
-                // "rt" = read text mode
-                FILE *p = fopen(script, "rt");
+                char path[256];
+                snprintf(path, sizeof(path), "backing_store/%s", script);
+                FILE *p = fopen(path, "rt");
 
                 if (p == NULL) {
-                    return badcommandFileDoesNotExist();
+                    return badcommandErrorReadingFromBackingStore();
                 }
 
                 // Buffer file contents in array
@@ -368,44 +483,5 @@ int exec(char *programs[], char *policy) {
         }
     }
 
-    if (strcmp(policy, "FCFS") == 0) {
-        return scheduler_fcfs();
-    } else if (strcmp(policy, "SJF") == 0) {
-        return scheduler_sjf();
-    } else if (strcmp(policy, "RR") == 0) {
-        return scheduler_rr(RR_TIMESLICE);
-    } else if (strcmp(policy, "RR30") == 0) {
-        return scheduler_rr(RR30_TIMESLICE);
-    } else if (strcmp(policy, "AGING") == 0) {
-        return scheduler_aging();
-    } else {
-        return badcommandInvalidPolicy();
-    }
-}
-
-
-// === HELPER FUNCTIONS ===
-
-/*
-Checks if a string is valid. Used for checking file and directory names.
-Alphanumeric characters and underscores are allowed.
-Returns:
-- 0 if not alphanumeric
-- 1 if alphanumeric
-*/
-int is_valid_name(char *string) {
-    if (string == NULL) {
-        return 0;
-    }
-
-    int ix = 0;
-    while (string[ix] != '\0') {
-        if (isalnum(string[ix]) == 0 && string[ix] != '_') {
-            return 0;
-        }
-
-        ix++;
-    }
-
-    return 1;
+    return 0;
 }
