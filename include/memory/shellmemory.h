@@ -1,4 +1,4 @@
-#define SHELL_MEM_SIZE 15
+#define SHELL_MEM_SIZE 300
 #define VAR_TABLE_SIZE 10
 // We use a frame size of 3 rather than a power of 2 to test interesting cases
 // without having to implement more scheduling policies
